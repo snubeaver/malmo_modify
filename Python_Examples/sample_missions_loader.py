@@ -34,12 +34,12 @@ malmoutils.fix_print()
 # -- set up the mission -- #
 #mission_file_no_ext = '../Sample_missions/default_world_1'                 # Survive and find gold, diamond or redstone!
 # mission_file_no_ext = '../Sample_missions/default_flat_1'                  # Move to a wooden hut in a snow tempest!
-mission_file_no_ext = '../Sample_missions/tricky_arena_1'                  # Mind your step to the redstone!
+# mission_file_no_ext = '../Sample_missions/tricky_arena_1'                  # Mind your step to the redstone!
 #mission_file_no_ext = '../Sample_missions/eating_1'                        # Eat a healthy diet!
 #mission_file_no_ext = '../Sample_missions/cliff_walking_1'                 # Burning lava!
 
-#mission_file_no_ext = '../Sample_missions/mazes/maze_1'                    # Get a-mazed! A simple maze.
-#mission_file_no_ext = '../Sample_missions/mazes/maze_2'                    # Get more a-mazed! A complex maze.
+mission_file_no_ext = '../Sample_missions/mazes/maze_1'                    # Get a-mazed! A simple maze.
+# mission_file_no_ext = '../Sample_missions/mazes/maze_2'                    # Get more a-mazed! A complex maze.
 
 #mission_file_no_ext = '../Sample_missions/classroom/basic'                 # Grab the treasure! Single small room
 #mission_file_no_ext = '../Sample_missions/classroom/obstacles'             # The apartment! Some rooms

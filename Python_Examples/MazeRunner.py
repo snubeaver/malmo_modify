@@ -1,16 +1,16 @@
 from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
 # including without limitation the rights to use, copy, modify, merge, publish, distribute,
 # sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all copies or
 # substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
 # NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
@@ -53,7 +53,7 @@ maze1 = '''
 
 maze2 = '''
     <MazeDecorator>
-        <SizeAndPosition length="19" width="19" scale="3" yOrigin="225" zOrigin="0" height="180"/>
+        <SizeAndPosition length="20" width="20" scale="2" yOrigin="225" zOrigin="0" height="180"/>
         <GapProbability variance="0.4">0.5</GapProbability>
         <Seed>random</Seed>
         <MaterialSeed>random</MaterialSeed>
@@ -62,10 +62,17 @@ maze2 = '''
         <EndBlock fixedToEdge="true" type="redstone_block lapis_block" height="12"/>
         <PathBlock type="stained_glass" colour="WHITE ORANGE MAGENTA LIGHT_BLUE YELLOW LIME PINK GRAY SILVER CYAN PURPLE BLUE BROWN GREEN RED BLACK" height="1"/>
         <FloorBlock type="glowstone"/>
-        <GapBlock type="stone" height="10"/>
+        <SubgoalBlock type="stained_glass"/>
+        <GapBlock type="stone" height="30"/>
         <AddQuitProducer description="finished maze"/>
         <AddNavigationObservations/>
     </MazeDecorator>
+    <DrawingDecorator>
+        <DrawCuboid type="cobblestone" x1="-1" x2="0" y1="226" y2="276" z1="-1" z2="41"/>
+        <DrawCuboid type="cobblestone" x1="40" x2="41" y1="226" y2="276" z1="-1" z2="41"/>
+        <DrawCuboid type="cobblestone" x1="-1" x2="41" y1="226" y2="276" z1="-1" z2="0"/>
+        <DrawCuboid type="cobblestone" x1="-1" x2="41" y1="226" y2="276" z1="40" z2="41"/>
+    </DrawingDecorator>
 '''
 
 maze3 = '''
@@ -111,7 +118,7 @@ def GetMissionXML( mazeblock, agent_host ):
         <About>
             <Summary>Run the maze!</Summary>
         </About>
-        
+
         <ModSettings>
             <MsPerTick>''' + str(TICK_LENGTH) + '''</MsPerTick>
         </ModSettings>
@@ -131,7 +138,7 @@ def GetMissionXML( mazeblock, agent_host ):
         <AgentSection mode="Survival">
             <Name>James Bond</Name>
             <AgentStart>
-                <Placement x="-204" y="81" z="217"/>
+                <Placement x="-20" y="81" z="21"/>
             </AgentStart>
             <AgentHandlers>
                 <ContinuousMovementCommands turnSpeedDegs="840">
@@ -145,8 +152,8 @@ def GetMissionXML( mazeblock, agent_host ):
     </Mission>'''
 
 validate = True
-mazeblocks = [maze1, maze2, maze3, maze4]
-
+# mazeblocks = [maze1, maze2, maze3, maze4]
+mazeblocks = [maze2]
 agent_host.setObservationsPolicy(MalmoPython.ObservationsPolicy.LATEST_OBSERVATION_ONLY)
 
 if agent_host.receivedArgument("test"):
@@ -192,10 +199,12 @@ for iRepeat in range(num_reps):
             print("Got " + str(world_state.number_of_observations_since_last_state) + " observations since last state.")
             msg = world_state.observations[-1].text
             ob = json.loads(msg)
-            current_yaw_delta = ob.get(u'yawDelta', 0)
-            current_speed = (1-abs(current_yaw_delta))
+            # current_yaw_delta = ob.get(u'yawDelta', 0)
+            current_yaw_delta = random.uniform(-1.0,1.0)
+            # current_speed = (1-abs(current_yaw_delta))
+            current_speed = (1-random.random())
             print("Got observation: " + str(current_yaw_delta))
-            
+
             try:
                 agent_host.sendCommand( "move " + str(current_speed) )
                 agent_host.sendCommand( "turn " + str(current_yaw_delta) )
@@ -203,6 +212,6 @@ for iRepeat in range(num_reps):
                 print("Failed to send command:",e)
                 pass
         world_state = agent_host.getWorldState()
-                
+
     print("Mission has stopped.")
     time.sleep(0.5) # Give mod a little time to get back to dormant state.
