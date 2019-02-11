@@ -27,6 +27,7 @@ import time
 import json
 import errno
 import malmoutils
+from PIL import Image
 
 malmoutils.fix_print()
 
@@ -62,8 +63,10 @@ maze2 = '''
         <EndBlock fixedToEdge="true" type="redstone_block lapis_block" height="12"/>
         <PathBlock type="stained_glass" colour="WHITE ORANGE MAGENTA LIGHT_BLUE YELLOW LIME PINK GRAY SILVER CYAN PURPLE BLUE BROWN GREEN RED BLACK" height="1"/>
         <FloorBlock type="glowstone"/>
-        <SubgoalBlock type="stained_glass"/>
-        <GapBlock type="stone" height="30"/>
+        <Waypoints quantity="30">
+            <WaypointBlock type= "grass"/>
+        </Waypoints>
+        <GapBlock type="stone" height="2"/>
         <AddQuitProducer description="finished maze"/>
         <AddNavigationObservations/>
     </MazeDecorator>
@@ -135,7 +138,7 @@ def GetMissionXML( mazeblock, agent_host ):
             </ServerHandlers>
         </ServerSection>
 
-        <AgentSection mode="Survival">
+        <AgentSection mode="Creative">
             <Name>James Bond</Name>
             <AgentStart>
                 <Placement x="-20" y="81" z="21"/>
@@ -199,10 +202,8 @@ for iRepeat in range(num_reps):
             print("Got " + str(world_state.number_of_observations_since_last_state) + " observations since last state.")
             msg = world_state.observations[-1].text
             ob = json.loads(msg)
-            # current_yaw_delta = ob.get(u'yawDelta', 0)
-            current_yaw_delta = random.uniform(-1.0,1.0)
-            # current_speed = (1-abs(current_yaw_delta))
-            current_speed = (1-random.random())
+            current_yaw_delta = ob.get(u'yawDelta', 0) + random.uniform(-0.01,0.01)
+            current_speed = (1-abs(current_yaw_delta))
             print("Got observation: " + str(current_yaw_delta))
 
             try:
@@ -211,7 +212,28 @@ for iRepeat in range(num_reps):
             except RuntimeError as e:
                 print("Failed to send command:",e)
                 pass
+
+        import sys, time
+        sys.stdout.flush()
+
         world_state = agent_host.getWorldState()
+        # ADDED
+        num_frames_seen = world_state.number_of_video_frames_since_last_state
+        while world_state.is_mission_running and world_state.number_of_video_frames_since_last_state == 0:
+            #print(len(world_state.video_frames))
+            world_state = agent_host.peekWorldState()
+            time.sleep(0.5)
+        print("HERE")
+        print(len(world_state.video_frames))
+        sys.stdout.flush()
+        if True:
+            # save the frame, for debugging
+            if world_state.is_mission_running:
+                assert len(world_state.video_frames) > 0, 'No video frames!?'
+                frame = world_state.video_frames[-1]
+                image = Image.frombytes('RGB', (frame.width, frame.height), bytes(frame.pixels) )
+                iFrame = iFrame + 1
+                image.save( 'rep_' + str(self.rep).zfill(3) + '_saved_frame_' + str(iFrame).zfill(4) + '.png' )
 
     print("Mission has stopped.")
     time.sleep(0.5) # Give mod a little time to get back to dormant state.
